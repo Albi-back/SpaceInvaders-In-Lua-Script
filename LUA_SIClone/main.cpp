@@ -15,6 +15,7 @@ Description:main
 #include "Ufo.h"
 #include "laser.h"
 #include "Mothership.h"
+#include "LuaHelper.h"
 
 using namespace std;
 //globals ***maybe add to a class along with the functions below??***
@@ -32,7 +33,11 @@ void game_start_message();
 int main()
 {
 	srand(time(NULL));//Sets the random seed for the whole game
-
+	//init lua 
+	lua_State* L = luaL_newstate();
+	if (!LuaOK(L, luaL_dofile(L, "Script.lua")))
+		assert(false);
+	
 	// DECLARE variables
 	bool is_right = true;//move direction check	
 	int ufo_counter = 0;//how many ufos destroyed (this tells the game when to start a new level)
@@ -40,7 +45,10 @@ int main()
 	int Level_number = 1;//used for displaying the level number
 	int laser_generator;//chance of ufo firing
 	int Mothership_chance;//chance of mothership appearing
+	level_colour = LuaGetInt(L, "colour");
+	Level_number = LuaGetInt(L, "level");
 
+	
 	Game_manager = new Game();
 	Input* Input_manager = new Input();
 	DynamicUfoArray = new Ufo**[5] {};
@@ -48,8 +56,8 @@ int main()
 	laser* laser_limit[10]{};
 	laser* Ufo_lasers[10]{};
 
-	the_ship = new Player(500, 625, 5, "assets/player0.bmp");//create the player ship
-	the_ship->addFrame("assets/player1.bmp");
+	the_ship = new Player(500, 625, LuaGetInt(L,"lives"), LuaGetStr(L, "playerSprite"));//create the player ship
+	the_ship->addFrame(LuaGetStr(L, "playerSprite"));
 	
 	game_start_message();//DISPLAY THE GAME START MESSAGE 
 	
@@ -447,6 +455,7 @@ int main()
 	//////////////////////////////////////////	
 	delete the_ship;//delete the player ship
 	the_ship = nullptr;
+	lua_close(L);
 	return 0;
 }
 
