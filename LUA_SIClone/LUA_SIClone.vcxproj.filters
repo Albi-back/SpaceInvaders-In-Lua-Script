@@ -85,6 +85,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Script.lua" />
+    <None Include="Script.lua">
+      <Filter>Lua scripts</Filter>
+    </None>
   </ItemGroup>
 </Project>

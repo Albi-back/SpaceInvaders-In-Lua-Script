@@ -26,7 +26,7 @@ int x, y;//used for ufo array coordinates
 
 int randomNumber();//random number generator
 void destroyUFOs();
-void spawnUFOs();
+void spawnUFOs(lua_State*L);
 void display_message(const char* message);
 void game_start_message();
 
@@ -47,7 +47,8 @@ int main()
 	int Mothership_chance;//chance of mothership appearing
 	level_colour = LuaGetInt(L, "colour");
 	Level_number = LuaGetInt(L, "level");
-
+	Vector2 pos;
+	pos.FromLua(L, "startpos");
 	
 	Game_manager = new Game();
 	Input* Input_manager = new Input();
@@ -56,7 +57,7 @@ int main()
 	laser* laser_limit[10]{};
 	laser* Ufo_lasers[10]{};
 
-	the_ship = new Player(500, 625, LuaGetInt(L,"lives"), LuaGetStr(L, "playerSprite"));//create the player ship
+	the_ship = new Player(pos.x, pos.y, LuaGetInt(L,"lives"), LuaGetStr(L, "playerSprite"));//create the player ship
 	the_ship->addFrame(LuaGetStr(L, "playerSprite"));
 	
 	game_start_message();//DISPLAY THE GAME START MESSAGE 
@@ -65,7 +66,7 @@ int main()
 	{			
 			al_flush_event_queue(Input_manager->Get_event());//clears the queue of events
 
-			spawnUFOs();
+			spawnUFOs(L);
 			for (int i = 0; i < 10; i++)//set all lasers to null
 			{
 				laser_limit[i] = NULL;
@@ -139,8 +140,8 @@ int main()
 						Mothership_chance = randomNumber();
 						if (Mothership_chance >= 250 && Mothership_chance <= 255)
 						{
-							the_mothership = new Mothership(0, 20, "assets/Mothership.bmp");
-							the_mothership->addFrame("assets/Mothership.bmp");
+							the_mothership = new Mothership(0, 20, (LuaGetStr(L, "mothershipSprite")));
+							the_mothership->addFrame((LuaGetStr(L, "mothershipSprite")));
 						}
 					}
 					if (the_mothership != NULL)//draw and move the mothership
@@ -394,7 +395,7 @@ int main()
 								//delete the ufo's 
 								destroyUFOs();
 								//then respawn them
-								spawnUFOs();
+								spawnUFOs(L);
 								break;
 							}
 						}
@@ -485,7 +486,7 @@ void destroyUFOs()
 	}
 }
 
-void spawnUFOs()
+void spawnUFOs(lua_State* L)
 {
 	for (y = 0; y < 5; y++)//spawn ufos
 	{
@@ -495,8 +496,8 @@ void spawnUFOs()
 	{
 		for (x = 0; x < 10; x++)
 		{
-			DynamicUfoArray[y][x] = new Ufo((x * 85) + 85, (y * 50) + 70, "assets/Ufo1.bmp");
-			DynamicUfoArray[y][x]->addFrame("assets/Ufo2.bmp");
+			DynamicUfoArray[y][x] = new Ufo((x * 85) + 85, (y * 50) + 70, LuaGetStr(L, "ufo1"));
+			DynamicUfoArray[y][x]->addFrame(LuaGetStr(L, "ufo2"));
 		}
 	}
 }
